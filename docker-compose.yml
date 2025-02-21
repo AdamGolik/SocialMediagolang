@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: go_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - ./uploads:/app/uploads
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
