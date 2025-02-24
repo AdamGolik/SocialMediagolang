@@ -1,37 +1,37 @@
-version: '3.8'
-
 services:
-  app:
-    build: .
-    container_name: go_app
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
-      - ./uploads:/app/uploads
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
   postgres:
     image: postgres:latest
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    container_name: my_postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: toDo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: backend
+      dockerfile: backend/Dockerfile
+    container_name: go_app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: toDo
+      JWT_SECRET: szerdxtfcygvuhbijnokjbhvgcfxdzrserdxhtfcygvkuhbli
+    volumes:
+      - ./backend:/app  # Mapowanie folderu backendu
+      - ./backend/tmp:/tmp # Używane przez Air
+    depends_on:
+      - postgres
 
 volumes:
-  postgres_data:
+  pgdata:
